@@ -207,9 +207,10 @@ public class GravitinoInterceptionService implements InterceptionService {
         }
         return methodInvocation.proceed();
       } catch (IllegalArgumentException ex) {
-        // Let IllegalArgumentException propagate to REST endpoint handlers
-        // This allows proper HTTP 400 error responses for invalid input
-        throw ex;
+        // Handle IllegalArgumentException (e.g., invalid metadata object type)
+        // Return HTTP 400 Bad Request instead of HTTP 500 Internal Server Error
+        LOG.warn("Invalid argument in authorization phase: {}", ex.getMessage());
+        return Utils.illegalArguments(ex.getMessage(), ex);
       } catch (Exception ex) {
         String currentUser = PrincipalUtils.getCurrentUserName();
         String methodName = methodInvocation.getMethod().getName();
